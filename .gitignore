@@ -1,0 +1,4 @@
+# ignore all files that contain actual solutions
+solutions/_[0123456789]*.py
+
+*.db
