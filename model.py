@@ -14,10 +14,10 @@ Session = sessionmaker(bind=eng)
 euler_sesh = Session()
 
 
-class QuestionDeclarative(DeclarativeBase):
+class Question(DeclarativeBase):
     __tablename__ = "Question"
 
-    id = Column(INTEGER, primary_key=True, autoincrement=True)
+    ID = Column(INTEGER, primary_key=True, autoincrement=True)
     question_id = Column(INTEGER, unique=True)
     title = Column(VARCHAR(128))
     is_solved = Column(BOOLEAN)
@@ -39,7 +39,7 @@ class QuestionDeclarative(DeclarativeBase):
     def record_exists(self):
         return self._row is not None
 
-    def _add_vals(self, **kw_values):
+    def add_vals(self, **kw_values):
         """
         Add value to uninitialized instance variables
 
@@ -52,13 +52,22 @@ class QuestionDeclarative(DeclarativeBase):
             else:
                 raise RuntimeError(f'Value {k} is {getattr(self, k, "not found")}')
 
-    def _update_records(self):
-        euler_sesh.query(self.__class__).update(self.stored_att)
+        if self.record_exists:
+            self._update_records()
+        else:
+            self._add_record()
+
         euler_sesh.commit()
 
+    def _update_records(self):
+        euler_sesh.query(self.__class__).update(self.stored_att)
+        self.stored_att = dict()
+
     def _add_record(self):
+        for att in self.stored_att:
+            setattr(self, att, self.stored_att[att])
         euler_sesh.add(self)
-        euler_sesh.commit()
+        self.stored_att = dict()
 
     def __str__(self):
         return self.title
