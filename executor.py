@@ -25,9 +25,9 @@ def run(question_id):
 
 def _get_soln_func(q_id):
     filename, func_name = _parse_id(q_id)
-    moj = importlib.import_module(f"solutions.{filename}")
+    parent_module = importlib.import_module(f"solutions.{filename}")
     try:
-        return getattr(moj, func_name)
+        return getattr(parent_module, func_name)
     except AttributeError:
         raise RuntimeError(f"No solution for problem {q_id} found")
 
